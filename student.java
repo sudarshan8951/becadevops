@@ -1,33 +1,82 @@
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
-class student {
+class Student {
     private String name;
-    private Date dob;
-    private int age;
+    private String program;
+    private int semester;
+    private Map<String, Integer> courses; // Course Name -> Marks
 
-    public student(String name, String dob) throws ParseException {
+    public Student(String name, String program, int semester) {
         this.name = name;
-        this.dob = new SimpleDateFormat("dd-MM-yyyy").parse(dob);
-        this.age = calculateAge();
+        this.program = program;
+        this.semester = semester;
+        this.courses = new HashMap<>();
     }
 
-    private int calculateAge() {
-        Date today = new Date();
-        long ageInMillis = today.getTime() - dob.getTime();
-        return (int) (ageInMillis / (1000L * 60 * 60 * 24 * 365)); // approximate year length of 365 days
+    public void registerCourse(String courseName, int marks) {
+        if (marks < 0 || marks > 100) {
+            System.out.println("Invalid marks for " + courseName + ". Must be between 0 and 100.");
+            return;
+        }
+        courses.put(courseName, marks);
     }
 
     public void displayStudentDetails() {
-        // Correct the date format to "dd-MM-yyyy"
-        System.out.println("Name: " + name);
-        System.out.println("Date of Birth: " + new SimpleDateFormat("dd-MM-yyyy").format(dob));
-        System.out.println("Age: " + age);
+        System.out.println("Student Name: " + name);
+        System.out.println("Program: " + program);
+        System.out.println("Semester: " + semester);
+        System.out.println("Registered Courses: " + courses.keySet());
     }
 
-    public static void main(String[] args) throws ParseException {
-        student student = new student("Alice", "15-08-2002");
+    public void displayLowMarks() {
+        System.out.println("Courses with Marks Below 40:");
+        boolean found = false;
+        for (Map.Entry<String, Integer> entry : courses.entrySet()) {
+            if (entry.getValue() < 40) {
+                System.out.println(entry.getKey() + " - " + entry.getValue());
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("None");
+        }
+    }
+
+    public void displayAverageMarks() {
+        if (courses.isEmpty()) {
+            System.out.println("No courses registered.");
+            return;
+        }
+        int total = 0;
+        for (int marks : courses.values()) {
+            total += marks;
+        }
+        double average = total / (double) courses.size();
+        System.out.println("Average Marks: " + average);
+    }
+
+    public void displayPassStatus() {
+        boolean allPassed = true;
+        for (int marks : courses.values()) {
+            if (marks < 40) {
+                allPassed = false;
+                break;
+            }
+        }
+        System.out.println(allPassed ? "Status: Passed All Courses" : "Status: Failed in Some Courses");
+    }
+
+    public static void main(String[] args) {
+        Student student = new Student("John Doe", "Computer Science", 3);
+        student.registerCourse("Mathematics", 75);
+        student.registerCourse("Physics", 35);
+        student.registerCourse("Chemistry", 90);
+        student.registerCourse("History", 28);
+        student.registerCourse("Art", 105); // Invalid input test
+
         student.displayStudentDetails();
+        student.displayLowMarks();
+        student.displayAverageMarks();
+        student.displayPassStatus();
     }
 }
